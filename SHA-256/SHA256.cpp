@@ -53,7 +53,7 @@ void SHA256Iterations(char** messageBlock, char workingVariables[][FRAGMENT_SIZE
 void calculateSHA256Message(const char* binaryNumber, char* output, unsigned& arrayIndex, size_t messageLength, size_t symbolLength);
 
 // Fill Message Block
-void generateMessageBlockRows(char** messageBlock, size_t ROWS, size_t COLUMNS);
+char** generateMessageBlockRows(size_t ROWS, size_t COLUMNS);
 void encodeInputMessage(char** messageBlock, size_t blockLength, char* input, size_t inputLength);
 void appendCharactersBinary(char** messageBlock, size_t charSize, size_t i, char ch);
 void appendBigEndianInteger(char** messageBlock, size_t charSize, size_t blockLength, size_t inputLength);
@@ -99,9 +99,7 @@ int main()
 	const size_t N = ((inputLength * CHAR_SIZE_IN_BITS) + MAX_SIZE_MESSAGE_SCHEDULE) / INITIAL_BITS;
 	const size_t ROWS = MAX_SIZE_MESSAGE_SCHEDULE * ((inputLength / MAX_INPUT_CHUNK_LENGTH) + 1);
 
-	char** messageBlock = new char* [ROWS];
-
-	generateMessageBlockRows(messageBlock, ROWS, CHAR_SIZE_IN_BITS);
+	char** messageBlock = generateMessageBlockRows(ROWS, CHAR_SIZE_IN_BITS);
 
 	getFinalMessage(messageBlock, ROWS, outputMessage, inputMessage, inputLength, N);
 
@@ -354,17 +352,16 @@ uint32_t MAJORITY(const char* a, const char* b, const char* c, size_t fragmentLe
 	return (decimalA & decimalB) ^ (decimalA & decimalC) ^ (decimalB & decimalC);
 }
 
-void generateMessageBlockRows(char** messageBlock, size_t ROWS, size_t COLUMNS)
+char** generateMessageBlockRows(size_t ROWS, size_t COLUMNS)
 {
-	if (!messageBlock)
-		return;
-
+	char** mtx = new char* [ROWS];
 	for (size_t i = 0; i < ROWS; i++)
 	{
-		messageBlock[i] = new char[CHAR_SIZE_IN_BITS + 1];
+		mtx[i] = new char[CHAR_SIZE_IN_BITS + 1];
 		for (size_t j = 0; j < COLUMNS; j++)
-			messageBlock[i][j] = '\0';
+			mtx[i][j] = '\0';
 	}
+	return mtx;
 }
 
 void encodeInputMessage(char** messageBlock, size_t blockLength, char* input, size_t inputLength)
