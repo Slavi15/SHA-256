@@ -13,6 +13,7 @@
 
 #include <iostream>
 #include <fstream>
+//#include <cstdint> // This library is only needed if the code is compiled with g++
 
 using namespace std;
 
@@ -33,25 +34,25 @@ uint32_t H[CHAR_SIZE_IN_BITS] = { // Hash Values Constants
 };
 
 uint32_t K[MAX_SIZE_MESSAGE_SCHEDULE] = { // K Constants Array
-	0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1,
-	0x923f82a4, 0xab1c5ed5, 0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3,
-	0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174, 0xe49b69c1, 0xefbe4786,
-	0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
-	0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147,
-	0x06ca6351, 0x14292967, 0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13,
-	0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85, 0xa2bfe8a1, 0xa81a664b,
-	0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
-	0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a,
-	0x5b9cca4f, 0x682e6ff3, 0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208,
-	0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
+	0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
+	0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
+	0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
+	0x983e5152, 0xa831c66d, 0xb00327c8, 0xbf597fc7, 0xc6e00bf3, 0xd5a79147, 0x06ca6351, 0x14292967,
+	0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
+	0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
+	0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
+	0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
 };
+
+void menuLoop();
+void refreshScreen();
 
 // Input/Output File Operations
 int fReadString(const char* fileName, char* inputMessage, size_t size, size_t line);
 int fWriteString(const char* fileName, const char* outputMessage, size_t outputLength);
 
-void getFinalMessage(char** messageBlock, size_t ROWS, char* outputMessage, char* inputMessage, size_t inputLength, size_t NIterations);
-void SHA256Iterations(char** messageBlock, uint32_t workingVariables[], unsigned& iteration);
+char* getFinalMessage(char** messageBlock, size_t ROWS, char* inputMessage, size_t inputLength, size_t NIterations);
+void SHA256Iterations(char** messageBlock, uint32_t* workingVariables, unsigned& iteration);
 void calculateSHA256Message(uint32_t hexNumber, char* output, unsigned& arrayIndex, size_t messageLength, size_t fragmentLength, size_t symbolLength);
 
 // Fill Message Block
@@ -67,18 +68,19 @@ void getMessageBlockValues(char** messageBlock, char W[][FRAGMENT_SIZE + 1], siz
 void calculateNextRows(char W[][FRAGMENT_SIZE + 1], size_t i, size_t fragmentLength, unsigned& firstIndex, unsigned& secondIndex);
 
 // SHA-256 Calculations
-uint32_t calculateTEMP1(const char W[][FRAGMENT_SIZE + 1], const uint32_t workingVariables[], size_t fragmentLength, size_t index);
-uint32_t calculateTEMP2(const uint32_t workingVariables[], size_t fragmentLength);
+uint32_t calculateTEMP1(const char W[][FRAGMENT_SIZE + 1], const uint32_t* workingVariables, size_t fragmentLength, size_t index);
+uint32_t calculateTEMP2(const uint32_t* workingVariables, size_t fragmentLength);
 uint32_t SSIGSUMMATION(const char W[][FRAGMENT_SIZE + 1], size_t fragmentLength, size_t ROTRFIRST, size_t ROTRSECOND, size_t SHIFTZEROS, size_t index);
 uint32_t EPSUMMATION(uint32_t decimal, size_t fragmentLength, size_t ROTRFIRST, size_t ROTRSECOND, size_t ROTRTHIRD);
 uint32_t CHOICE(uint32_t e, uint32_t f, uint32_t g);
 uint32_t MAJORITY(uint32_t a, uint32_t b, uint32_t c);
 uint32_t ROTATERIGHT(uint32_t decimalNumber, size_t bits, size_t fragmentLength);
 
-void updateInitialHashValues(uint32_t workingVariables[], size_t workingVariablesLength, size_t fragmentLength);
-void updateWorkingVariables(const char W[][FRAGMENT_SIZE + 1], uint32_t workingVariables[], size_t fragmentLength, size_t index);
+void updateInitialHashValues(uint32_t* workingVariables, size_t workingVariablesLength, size_t fragmentLength);
+void updateWorkingVariables(const char W[][FRAGMENT_SIZE + 1], uint32_t* workingVariables, size_t fragmentLength, size_t index);
 
 void stringCopy(char* dest, const char* source);
+unsigned int myStrCmp(const char* first, const char* second);
 void mySubstring(char* dest, const char* source, size_t start, size_t length);
 
 unsigned getInputLength(const char* str);
@@ -92,10 +94,15 @@ bool isDigit(char ch);
 
 int main()
 {
+	menuLoop();
+	return 0;
+}
+
+void menuLoop()
+{
 	char inputMessage[SAFE_MAX_SIZE];
 	fReadString(INPUT_FILE_NAME, inputMessage, SAFE_MAX_SIZE, 1);
 
-	char outputMessage[MAX_SIZE_MESSAGE_SCHEDULE];
 	unsigned inputLength = getInputLength(inputMessage);
 
 	const size_t N = ((inputLength * CHAR_SIZE_IN_BITS) + MAX_SIZE_MESSAGE_SCHEDULE) / INITIAL_BITS;
@@ -103,13 +110,62 @@ int main()
 
 	char** messageBlock = generateMessageBlockRows(ROWS, CHAR_SIZE_IN_BITS);
 
-	getFinalMessage(messageBlock, ROWS, outputMessage, inputMessage, inputLength, N);
+	bool exitCommand = false;
+
+	while (!exitCommand)
+	{
+		refreshScreen();
+		cout << "Welcome to SHA-256!" << endl;
+		cout << "1. Generate SHA-256 Message" << endl;
+		cout << "2. Compare SHA-256 Messages" << endl;
+		cout << "3. Exit" << endl;
+
+		unsigned int menuOption = 0;
+		cout << "Your command: ";
+		cin >> menuOption;
+
+		switch (menuOption)
+		{
+			case 1:
+				{
+					char* output = getFinalMessage(messageBlock, ROWS, inputMessage, inputLength, N);
+					fWriteString(OUTPUT_FILE_NAME, output, MAX_SIZE_MESSAGE_SCHEDULE);
+					exitCommand = true;
+				}
+				break;
+			case 2:
+				{
+					char compareMessage[MAX_SIZE_MESSAGE_SCHEDULE + 1];
+					cin.ignore(100, '\n');
+					cout << "Your SHA-256 Message: ";
+					cin.getline(compareMessage, MAX_SIZE_MESSAGE_SCHEDULE + 1);
+
+					char* output = getFinalMessage(messageBlock, ROWS, inputMessage, inputLength, N);
+	
+					if (myStrCmp(compareMessage, output) == 0)
+						cout << "SHA-256 Messages successfully matched!" << endl;
+					else
+						cout << "SHA-256 Messages didn't match!" << endl;
+
+					exitCommand = true;
+				}
+				break;
+			case 3:
+				{
+					cout << "You have exited successfully!" << endl;
+					exitCommand = true;
+				}
+				break;
+			default:
+				{
+					refreshScreen();
+					cout << "Invalid command! Please, enter (1-3)!" << endl;
+				}
+				break;
+		}
+	}
 
 	deleteMessageBlock(messageBlock, ROWS);
-
-	fWriteString(OUTPUT_FILE_NAME, outputMessage, MAX_SIZE_MESSAGE_SCHEDULE);
-
-	return 0;
 }
 
 int fReadString(const char* fileName, char* inputMessage, size_t size, size_t line)
@@ -150,10 +206,10 @@ int fWriteString(const char* fileName, const char* outputMessage, size_t outputL
 	return 0;
 }
 
-void getFinalMessage(char** messageBlock, size_t ROWS, char* outputMessage, char* inputMessage, size_t inputLength, size_t NIterations)
+char* getFinalMessage(char** messageBlock, size_t ROWS, char* inputMessage, size_t inputLength, size_t NIterations)
 {
-	if (!messageBlock || !outputMessage || !inputMessage)
-		return;
+	if (!messageBlock || !inputMessage)
+		return nullptr;
 
 	encodeInputMessage(messageBlock, ROWS, inputMessage, inputLength);
 
@@ -162,6 +218,9 @@ void getFinalMessage(char** messageBlock, size_t ROWS, char* outputMessage, char
 		0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19
 	};
 
+	static char outputMessage[MAX_SIZE_MESSAGE_SCHEDULE + 1];
+	outputMessage[MAX_SIZE_MESSAGE_SCHEDULE] = '\0';
+
 	unsigned iteration = 0;
 	for (size_t i = 0; i < NIterations + 1; i++)
 		SHA256Iterations(messageBlock, workingVariables, iteration);
@@ -169,11 +228,13 @@ void getFinalMessage(char** messageBlock, size_t ROWS, char* outputMessage, char
 	unsigned arrayIndex = 0;
 	for (size_t i = 0; i < CHAR_SIZE_IN_BITS; i++)
 		calculateSHA256Message(H[i], outputMessage, arrayIndex, CHAR_SIZE_IN_BITS, FRAGMENT_SIZE, CHAR_SIZE_IN_BITS / 2);
+
+	return outputMessage;
 }
 
-void SHA256Iterations(char** messageBlock, uint32_t workingVariables[], unsigned& iteration)
+void SHA256Iterations(char** messageBlock, uint32_t* workingVariables, unsigned& iteration)
 {
-	if (!messageBlock)
+	if (!messageBlock || !workingVariables)
 		return;
 
 	char W[MAX_SIZE_MESSAGE_SCHEDULE][FRAGMENT_SIZE + 1]; // Message Schedule Array
@@ -245,8 +306,11 @@ void calculateNextRows(char W[][FRAGMENT_SIZE + 1], size_t i, size_t fragmentLen
 	secondIndex++;
 }
 
-void updateWorkingVariables(const char W[][FRAGMENT_SIZE + 1], uint32_t workingVariables[], size_t fragmentLength, size_t index)
+void updateWorkingVariables(const char W[][FRAGMENT_SIZE + 1], uint32_t* workingVariables, size_t fragmentLength, size_t index)
 {
+	if (!workingVariables)
+		return;
+
 	uint32_t TEMP1 = calculateTEMP1(W, workingVariables, fragmentLength, index);
 	uint32_t TEMP2 = calculateTEMP2(workingVariables, fragmentLength);
 
@@ -268,8 +332,11 @@ void updateWorkingVariables(const char W[][FRAGMENT_SIZE + 1], uint32_t workingV
 		}
 }
 
-void updateInitialHashValues(uint32_t workingVariables[], size_t workingVariablesLength, size_t fragmentLength)
+void updateInitialHashValues(uint32_t* workingVariables, size_t workingVariablesLength, size_t fragmentLength)
 {
+	if (!workingVariables)
+		return;
+
 	for (size_t i = 0; i < workingVariablesLength; i++)
 	{
 		uint32_t updatedHashValue = workingVariables[i] + H[i];
@@ -278,8 +345,11 @@ void updateInitialHashValues(uint32_t workingVariables[], size_t workingVariable
 	}
 }
 
-uint32_t calculateTEMP1(const char W[][FRAGMENT_SIZE + 1], const uint32_t workingVariables[], size_t fragmentLength, size_t index)
+uint32_t calculateTEMP1(const char W[][FRAGMENT_SIZE + 1], const uint32_t* workingVariables, size_t fragmentLength, size_t index)
 {
+	if (!workingVariables)
+		return 0;
+
 	uint32_t w = kSystemToDecimal(W[index], fragmentLength, 2);
 
 	return w + K[index] +
@@ -287,8 +357,11 @@ uint32_t calculateTEMP1(const char W[][FRAGMENT_SIZE + 1], const uint32_t workin
 		CHOICE(workingVariables[4], workingVariables[5], workingVariables[6]) + workingVariables[7]; // h
 }
 
-uint32_t calculateTEMP2(const uint32_t workingVariables[], size_t fragmentLength)
+uint32_t calculateTEMP2(const uint32_t* workingVariables, size_t fragmentLength)
 {
+	if (!workingVariables)
+		return 0;
+
 	return EPSUMMATION(workingVariables[0], fragmentLength, 2, 13, 22) +
 		MAJORITY(workingVariables[0], workingVariables[1], workingVariables[2]);
 }
@@ -433,6 +506,20 @@ void stringCopy(char* dest, const char* source)
 	*dest = '\0';
 }
 
+unsigned int myStrCmp(const char* first, const char* second)
+{
+	if (!first || !second)
+		return 0;
+
+	while (*first && *first == *second)
+	{
+		first++;
+		second++;
+	}
+
+	return *first - *second;
+}
+
 void decimalToKSystem(unsigned num, char to[], size_t fragmentLength, unsigned k)
 {
 	to[fragmentLength] = '\0';
@@ -464,7 +551,7 @@ char integerToChar(int n)
 	if (n >= 0 && n <= 9)
 		return n + '0';
 	else
-		return (n - 10) + 'A';
+		return (n - 10) + 'a';
 }
 
 int charToInteger(char ch)
@@ -478,4 +565,12 @@ int charToInteger(char ch)
 bool isDigit(char ch)
 {
 	return ch >= '0' && ch <= '9';
+}
+
+void refreshScreen() {
+#ifdef _WIN32
+	system("CLS");
+#else
+	system("clear");
+#endif
 }
