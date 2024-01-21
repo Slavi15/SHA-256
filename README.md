@@ -11,8 +11,8 @@ Console implementation of the famous SHA-256 (Secure Hash Algorithm 256) made as
 
 ## Compilation and Running
 **Compilation:**
-- If using g++ run `g++ -std=c++20 SHA256.cpp -o SHA256.exe` (or .out) inside `./SHA-256` project directory
-- If using clang++ run `clang++ -std=c++20 SHA256.cpp -o SHA256.exe` (or .out) inside `./SHA-256` project directory
+- If using g++ run `g++ -std=c++20 lib/*.cpp SHA256.cpp -o SHA256.exe` (or .out) inside `./SHA-256` project directory
+- If using clang++ run `clang++ -std=c++20 lib/*.cpp SHA256.cpp -o SHA256.exe` (or .out) inside `./SHA-256` project directory
 
 **Running**
 - Run `./SHA256.exe` (or .out) in the project directory

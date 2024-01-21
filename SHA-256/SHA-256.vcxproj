@@ -127,11 +127,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="lib\FileHelpers.cpp" />
+    <ClCompile Include="lib\Hash.cpp" />
+    <ClCompile Include="lib\HelperFunctions.cpp" />
+    <ClCompile Include="lib\UserInterface.cpp" />
     <ClCompile Include="SHA256.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="sha256_input.txt" />
     <Text Include="sha256_output.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="lib\FileHelpers.h" />
+    <ClInclude Include="lib\Hash.h" />
+    <ClInclude Include="lib\HelperFunctions.h" />
+    <ClInclude Include="lib\UserInterface.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
