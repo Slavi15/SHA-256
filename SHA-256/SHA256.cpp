@@ -7,33 +7,32 @@
 *
 * @author Slavi Rezashki
 * @idnumber 6MI0600339
-* @compiler MSVC
+* @compiler VC
 *
 */
 
 #include <iostream>
 #include <fstream>
-//#include <cstdint> // This library is only needed if the code is compiled with g++
 
 using namespace std;
 
 constexpr size_t SAFE_MAX_SIZE = 10000; // maximum size of input string
-constexpr size_t INITIAL_BITS = 512; // initial bits in the Message Block
+const size_t INITIAL_BITS = 512; // initial bits in the Message Block
 
 constexpr size_t MAX_SIZE_MESSAGE_SCHEDULE = 64; // maximum size of Message Schedule Rows
-constexpr size_t MAX_INPUT_CHUNK_LENGTH = 56; // maximum number of changing rows in Message Schedule when we work with > 512-bit words
+const size_t MAX_INPUT_CHUNK_LENGTH = 56; // maximum number of changing rows in Message Schedule when we work with > 512-bit words
 constexpr size_t CHAR_SIZE_IN_BITS = 8;
 constexpr size_t FRAGMENT_SIZE = 32; // length of every encoded line in Message Schedule
 
 const char* INPUT_FILE_NAME = "sha256_input.txt"; // file path to the input file
 const char* OUTPUT_FILE_NAME = "sha256_output.txt"; // file path to the output file
 
-uint32_t H[CHAR_SIZE_IN_BITS] = { // Hash Values Constants
+unsigned int H[CHAR_SIZE_IN_BITS] = { // Hash Values Constants
 	0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
 	0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19
 };
 
-uint32_t K[MAX_SIZE_MESSAGE_SCHEDULE] = { // K Constants Array
+unsigned int K[MAX_SIZE_MESSAGE_SCHEDULE] = { // K Constants Array
 	0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
 	0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
 	0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
@@ -52,8 +51,8 @@ int fReadString(const char* fileName, char* inputMessage, size_t size, size_t li
 int fWriteString(const char* fileName, const char* outputMessage, size_t outputLength);
 
 char* getFinalMessage(char** messageBlock, size_t ROWS, char* inputMessage, size_t inputLength, size_t NIterations);
-void SHA256Iterations(char** messageBlock, uint32_t* workingVariables, unsigned& iteration);
-void calculateSHA256Message(uint32_t hexNumber, char* output, unsigned& arrayIndex, size_t messageLength, size_t fragmentLength, size_t symbolLength);
+void SHA256Iterations(char** messageBlock, unsigned int* workingVariables, unsigned& iteration);
+void calculateSHA256Message(unsigned int hexNumber, char* output, unsigned& arrayIndex, size_t messageLength);
 
 // Fill Message Block
 char** generateMessageBlockRows(size_t ROWS, size_t COLUMNS);
@@ -68,16 +67,16 @@ void getMessageBlockValues(char** messageBlock, char W[][FRAGMENT_SIZE + 1], siz
 void calculateNextRows(char W[][FRAGMENT_SIZE + 1], size_t i, size_t fragmentLength, unsigned& firstIndex, unsigned& secondIndex);
 
 // SHA-256 Calculations
-uint32_t calculateTEMP1(const char W[][FRAGMENT_SIZE + 1], const uint32_t* workingVariables, size_t fragmentLength, size_t index);
-uint32_t calculateTEMP2(const uint32_t* workingVariables, size_t fragmentLength);
-uint32_t SSIGSUMMATION(const char W[][FRAGMENT_SIZE + 1], size_t fragmentLength, size_t ROTRFIRST, size_t ROTRSECOND, size_t SHIFTZEROS, size_t index);
-uint32_t EPSUMMATION(uint32_t decimal, size_t fragmentLength, size_t ROTRFIRST, size_t ROTRSECOND, size_t ROTRTHIRD);
-uint32_t CHOICE(uint32_t e, uint32_t f, uint32_t g);
-uint32_t MAJORITY(uint32_t a, uint32_t b, uint32_t c);
-uint32_t ROTATERIGHT(uint32_t decimalNumber, size_t bits, size_t fragmentLength);
+unsigned int calculateTEMP1(const char W[][FRAGMENT_SIZE + 1], const unsigned int* workingVariables, size_t fragmentLength, size_t index);
+unsigned int calculateTEMP2(const unsigned int* workingVariables, size_t fragmentLength);
+unsigned int SSIGSUMMATION(const char W[][FRAGMENT_SIZE + 1], size_t fragmentLength, size_t ROTRFIRST, size_t ROTRSECOND, size_t SHIFTZEROS, unsigned int index);
+unsigned int EPSUMMATION(unsigned int decimal, size_t fragmentLength, size_t ROTRFIRST, size_t ROTRSECOND, size_t ROTRTHIRD);
+unsigned int CHOICE(unsigned int e, unsigned int f, unsigned int g);
+unsigned int MAJORITY(unsigned int a, unsigned int b, unsigned int c);
+unsigned int ROTATERIGHT(unsigned int decimalNumber, size_t bits, size_t fragmentLength);
 
-void updateInitialHashValues(uint32_t* workingVariables, size_t workingVariablesLength, size_t fragmentLength);
-void updateWorkingVariables(const char W[][FRAGMENT_SIZE + 1], uint32_t* workingVariables, size_t fragmentLength, size_t index);
+void updateInitialHashValues(unsigned int* workingVariables, size_t workingVariablesLength, size_t fragmentLength);
+void updateWorkingVariables(const char W[][FRAGMENT_SIZE + 1], unsigned int* workingVariables, size_t fragmentLength, size_t index);
 
 void stringCopy(char* dest, const char* source);
 unsigned int myStrCmp(const char* first, const char* second);
@@ -85,8 +84,8 @@ void mySubstring(char* dest, const char* source, size_t start, size_t length);
 
 unsigned getInputLength(const char* str);
 
-void decimalToKSystem(unsigned num, char to[], size_t fragmentLength, unsigned k);
-uint32_t kSystemToDecimal(const char* binary, size_t fragmentLength, unsigned k);
+void decimalToKSystem(unsigned num, char* to, size_t fragmentLength, unsigned k);
+unsigned int kSystemToDecimal(const char* binary, size_t fragmentLength, unsigned k);
 char integerToChar(int n);
 int charToInteger(char ch);
 
@@ -117,11 +116,11 @@ void menuLoop()
 		refreshScreen();
 		cout << "Welcome to SHA-256!" << endl;
 		cout << "1. Generate SHA-256 Message" << endl;
-		cout << "2. Compare SHA-256 Messages" << endl;
+		cout << "2. SHA-256 Integrity Check" << endl;
 		cout << "3. Exit" << endl;
 
 		unsigned int menuOption = 0;
-		cout << "Your command: ";
+		cout << "Enter command: ";
 		cin >> menuOption;
 
 		switch (menuOption)
@@ -136,7 +135,7 @@ void menuLoop()
 			case 2:
 				{
 					char compareMessage[MAX_SIZE_MESSAGE_SCHEDULE + 1];
-					cin.ignore(100, '\n');
+					cin.ignore(128, '\n');
 					cout << "Your SHA-256 Message: ";
 					cin.getline(compareMessage, MAX_SIZE_MESSAGE_SCHEDULE + 1);
 
@@ -213,7 +212,7 @@ char* getFinalMessage(char** messageBlock, size_t ROWS, char* inputMessage, size
 
 	encodeInputMessage(messageBlock, ROWS, inputMessage, inputLength);
 
-	uint32_t workingVariables[CHAR_SIZE_IN_BITS] = {
+	unsigned int workingVariables[CHAR_SIZE_IN_BITS] = {
 		0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a,
 		0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19
 	};
@@ -227,12 +226,12 @@ char* getFinalMessage(char** messageBlock, size_t ROWS, char* inputMessage, size
 
 	unsigned arrayIndex = 0;
 	for (size_t i = 0; i < CHAR_SIZE_IN_BITS; i++)
-		calculateSHA256Message(H[i], outputMessage, arrayIndex, CHAR_SIZE_IN_BITS, FRAGMENT_SIZE, CHAR_SIZE_IN_BITS / 2);
+		calculateSHA256Message(H[i], outputMessage, arrayIndex, CHAR_SIZE_IN_BITS);
 
 	return outputMessage;
 }
 
-void SHA256Iterations(char** messageBlock, uint32_t* workingVariables, unsigned& iteration)
+void SHA256Iterations(char** messageBlock, unsigned int* workingVariables, unsigned& iteration)
 {
 	if (!messageBlock || !workingVariables)
 		return;
@@ -246,22 +245,20 @@ void SHA256Iterations(char** messageBlock, uint32_t* workingVariables, unsigned&
 	updateInitialHashValues(workingVariables, CHAR_SIZE_IN_BITS, FRAGMENT_SIZE);
 }
 
-void calculateSHA256Message(uint32_t hexNumber, char* output, unsigned& arrayIndex, size_t messageLength, size_t fragmentLength, size_t symbolLength)
+void calculateSHA256Message(unsigned int hexNumber, char* output, unsigned& arrayIndex, size_t messageLength)
 {
 	if (!output)
 		return;
 
-	char binaryNumber[FRAGMENT_SIZE + 1];
-	binaryNumber[fragmentLength] = '\0';
-	decimalToKSystem(hexNumber, binaryNumber, fragmentLength, 2);
-
-	for (size_t i = 0, counter = 0; i < messageLength; i++, counter += symbolLength)
+	unsigned int iterations = 0;
+	while (iterations != messageLength)
 	{
-		char binaryChar[CHAR_SIZE_IN_BITS / 2 + 1];
-		mySubstring(binaryChar, binaryNumber, counter, symbolLength);
-
-		output[arrayIndex++] = integerToChar(kSystemToDecimal(binaryChar, symbolLength, 2));
+		output[arrayIndex + (messageLength - iterations - 1)] = integerToChar(hexNumber & 0xf);
+		iterations++;
+		hexNumber >>= 4;
 	}
+
+	arrayIndex += messageLength;
 }
 
 void fillMessageSchedule(char** messageBlock, char W[][FRAGMENT_SIZE + 1], size_t blockLength, size_t fragmentLength, unsigned& iteration)
@@ -273,7 +270,9 @@ void fillMessageSchedule(char** messageBlock, char W[][FRAGMENT_SIZE + 1], size_
 	size_t iterationLengthMessageSchedule = blockLength / 4;
 
 	for (size_t i = 0; i < blockLength; i++)
-		i < iterationLengthMessageSchedule ? getMessageBlockValues(messageBlock, W, fragmentLength, i, iteration) : calculateNextRows(W, i, fragmentLength, firstIndex, secondIndex);
+		i < iterationLengthMessageSchedule ? 
+			getMessageBlockValues(messageBlock, W, fragmentLength, i, iteration) : 
+			calculateNextRows(W, i, fragmentLength, firstIndex, secondIndex);
 }
 
 void getMessageBlockValues(char** messageBlock, char W[][FRAGMENT_SIZE + 1], size_t fragmentLength, size_t i, unsigned& iteration)
@@ -291,7 +290,7 @@ void getMessageBlockValues(char** messageBlock, char W[][FRAGMENT_SIZE + 1], siz
 
 void calculateNextRows(char W[][FRAGMENT_SIZE + 1], size_t i, size_t fragmentLength, unsigned& firstIndex, unsigned& secondIndex)
 {
-	uint32_t summation = SSIGSUMMATION(W, fragmentLength, 7, 18, 3, firstIndex + 1) +
+	unsigned int summation = SSIGSUMMATION(W, fragmentLength, 7, 18, 3, firstIndex + 1) +
 		SSIGSUMMATION(W, fragmentLength, 17, 19, 10, secondIndex + 5) +
 		kSystemToDecimal(W[firstIndex], fragmentLength, 2) +
 		kSystemToDecimal(W[secondIndex], fragmentLength, 2);
@@ -306,16 +305,16 @@ void calculateNextRows(char W[][FRAGMENT_SIZE + 1], size_t i, size_t fragmentLen
 	secondIndex++;
 }
 
-void updateWorkingVariables(const char W[][FRAGMENT_SIZE + 1], uint32_t* workingVariables, size_t fragmentLength, size_t index)
+void updateWorkingVariables(const char W[][FRAGMENT_SIZE + 1], unsigned int* workingVariables, size_t fragmentLength, size_t index)
 {
 	if (!workingVariables)
 		return;
 
-	uint32_t TEMP1 = calculateTEMP1(W, workingVariables, fragmentLength, index);
-	uint32_t TEMP2 = calculateTEMP2(workingVariables, fragmentLength);
+	unsigned int TEMP1 = calculateTEMP1(W, workingVariables, fragmentLength, index);
+	unsigned int TEMP2 = calculateTEMP2(workingVariables, fragmentLength);
 
-	uint32_t firstSummation = workingVariables[3] + TEMP1;
-	uint32_t secondSummation = TEMP1 + TEMP2;
+	unsigned int firstSummation = workingVariables[3] + TEMP1;
+	unsigned int secondSummation = TEMP1 + TEMP2;
 
 	for (int i = CHAR_SIZE_IN_BITS - 1; i >= 0; i--)
 		switch (i)
@@ -332,32 +331,32 @@ void updateWorkingVariables(const char W[][FRAGMENT_SIZE + 1], uint32_t* working
 		}
 }
 
-void updateInitialHashValues(uint32_t* workingVariables, size_t workingVariablesLength, size_t fragmentLength)
+void updateInitialHashValues(unsigned int* workingVariables, size_t workingVariablesLength, size_t fragmentLength)
 {
 	if (!workingVariables)
 		return;
 
 	for (size_t i = 0; i < workingVariablesLength; i++)
 	{
-		uint32_t updatedHashValue = workingVariables[i] + H[i];
+		unsigned int updatedHashValue = workingVariables[i] + H[i];
 		workingVariables[i] = updatedHashValue;
 		H[i] = updatedHashValue;
 	}
 }
 
-uint32_t calculateTEMP1(const char W[][FRAGMENT_SIZE + 1], const uint32_t* workingVariables, size_t fragmentLength, size_t index)
+unsigned int calculateTEMP1(const char W[][FRAGMENT_SIZE + 1], const unsigned int* workingVariables, size_t fragmentLength, size_t index)
 {
 	if (!workingVariables)
 		return 0;
 
-	uint32_t w = kSystemToDecimal(W[index], fragmentLength, 2);
+	unsigned int w = kSystemToDecimal(W[index], fragmentLength, 2);
 
 	return w + K[index] +
 		EPSUMMATION(workingVariables[4], fragmentLength, 6, 11, 25) +
 		CHOICE(workingVariables[4], workingVariables[5], workingVariables[6]) + workingVariables[7]; // h
 }
 
-uint32_t calculateTEMP2(const uint32_t* workingVariables, size_t fragmentLength)
+unsigned int calculateTEMP2(const unsigned int* workingVariables, size_t fragmentLength)
 {
 	if (!workingVariables)
 		return 0;
@@ -366,31 +365,31 @@ uint32_t calculateTEMP2(const uint32_t* workingVariables, size_t fragmentLength)
 		MAJORITY(workingVariables[0], workingVariables[1], workingVariables[2]);
 }
 
-uint32_t SSIGSUMMATION(const char W[][FRAGMENT_SIZE + 1], size_t fragmentLength, size_t ROTRFIRST, size_t ROTRSECOND, size_t SHIFTZEROS, size_t index)
+unsigned int SSIGSUMMATION(const char W[][FRAGMENT_SIZE + 1], size_t fragmentLength, size_t ROTRFIRST, size_t ROTRSECOND, size_t SHIFTZEROS, unsigned int index)
 {
-	uint32_t decimal = kSystemToDecimal(W[index], fragmentLength, 2);
+	unsigned int decimal = kSystemToDecimal(W[index], fragmentLength, 2);
 
 	return SHIFTZEROS == 3 ?
 		ROTATERIGHT(decimal, ROTRFIRST, fragmentLength) ^ ROTATERIGHT(decimal, ROTRSECOND, fragmentLength) ^ (decimal >> 3) :
 		ROTATERIGHT(decimal, ROTRFIRST, fragmentLength) ^ ROTATERIGHT(decimal, ROTRSECOND, fragmentLength) ^ (decimal >> 10);
 }
 
-uint32_t ROTATERIGHT(uint32_t decimalNumber, size_t bits, size_t fragmentLength)
+unsigned int ROTATERIGHT(unsigned int decimalNumber, size_t bits, size_t fragmentLength)
 {
 	return ((decimalNumber >> bits) | (decimalNumber << (fragmentLength - bits)));
 }
 
-uint32_t EPSUMMATION(uint32_t decimal, size_t fragmentLength, size_t ROTRFIRST, size_t ROTRSECOND, size_t ROTRTHIRD)
+unsigned int EPSUMMATION(unsigned int decimal, size_t fragmentLength, size_t ROTRFIRST, size_t ROTRSECOND, size_t ROTRTHIRD)
 {
 	return ROTATERIGHT(decimal, ROTRFIRST, fragmentLength) ^ ROTATERIGHT(decimal, ROTRSECOND, fragmentLength) ^ ROTATERIGHT(decimal, ROTRTHIRD, fragmentLength);
 }
 
-uint32_t CHOICE(uint32_t e, uint32_t f, uint32_t g)
+unsigned int CHOICE(unsigned int e, unsigned int f, unsigned int g)
 {
 	return (e & f) ^ (~(e) & g);
 }
 
-uint32_t MAJORITY(uint32_t a, uint32_t b, uint32_t c)
+unsigned int MAJORITY(unsigned int a, unsigned int b, unsigned int c)
 {
 	return (a & b) ^ (a & c) ^ (b & c);
 }
@@ -520,8 +519,11 @@ unsigned int myStrCmp(const char* first, const char* second)
 	return *first - *second;
 }
 
-void decimalToKSystem(unsigned num, char to[], size_t fragmentLength, unsigned k)
+void decimalToKSystem(unsigned num, char* to, size_t fragmentLength, unsigned k)
 {
+	if (!to)
+		return;
+
 	to[fragmentLength] = '\0';
 
 	for (int i = fragmentLength - 1; i >= 0; i--)
@@ -532,7 +534,7 @@ void decimalToKSystem(unsigned num, char to[], size_t fragmentLength, unsigned k
 	}
 }
 
-uint32_t kSystemToDecimal(const char* binary, size_t fragmentLength, unsigned k)
+unsigned int kSystemToDecimal(const char* binary, size_t fragmentLength, unsigned k)
 {
 	if (!binary)
 		return 0;
