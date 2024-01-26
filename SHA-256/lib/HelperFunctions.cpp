@@ -30,20 +30,6 @@ unsigned getInputLength(const char* str)
 	return counter;
 }
 
-void stringCopy(char* dest, const char* source)
-{
-	if (!dest || !source)
-		return;
-
-	while (*source)
-	{
-		*dest = *source;
-		dest++;
-		source++;
-	}
-	*dest = '\0';
-}
-
 unsigned int myStrCmp(const char* first, const char* second)
 {
 	if (!first || !second)
@@ -58,47 +44,19 @@ unsigned int myStrCmp(const char* first, const char* second)
 	return *first - *second;
 }
 
-void mySubstring(char* dest, const char* source, size_t start, size_t length)
+unsigned int powerOfTwo(int n)
 {
-	if (!dest || !source)
-		return;
-
-	for (size_t i = 0; i < length; i++)
-	{
-		*dest = source[start];
-		start++;
-		dest++;
-	}
-	*dest = '\0';
-}
-
-void decimalToKSystem(unsigned num, char* to, size_t fragmentLength, unsigned k)
-{
-	if (!to)
-		return;
-
-	to[fragmentLength] = '\0';
-
-	for (int i = fragmentLength - 1; i >= 0; i--)
-	{
-		int mod = num % k;
-		to[i] = integerToChar(mod);
-		num /= k;
-	}
-}
-
-unsigned int kSystemToDecimal(const char* binary, size_t fragmentLength, unsigned k)
-{
-	if (!binary)
+	if (n > 31)
 		return 0;
 
-	unsigned result = 0;
+	return 1 << n;
+}
 
-	for (int i = fragmentLength - 1, mult = 1; i >= 0; i--, mult *= k)
-		if (binary[i] != '\0')
-			result += (charToInteger(binary[i]) * mult);
-
-	return result;
+bool checkBit(unsigned int n, unsigned index)
+{
+	unsigned int mask = 1;
+	mask <<= index;
+	return (mask & n) == mask;
 }
 
 char integerToChar(int n)
@@ -111,13 +69,5 @@ char integerToChar(int n)
 
 int charToInteger(char ch)
 {
-	if (isDigit(ch))
-		return ch - '0';
-
-	return -1;
-}
-
-bool isDigit(char ch)
-{
-	return ch >= '0' && ch <= '9';
+	return (int)ch;
 }

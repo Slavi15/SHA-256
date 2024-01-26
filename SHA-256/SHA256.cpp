@@ -9,8 +9,6 @@
 * @idnumber 6MI0600339
 * @compiler VC
 *
-* 
-*
 */
 
 #include "lib/UserInterface.h"

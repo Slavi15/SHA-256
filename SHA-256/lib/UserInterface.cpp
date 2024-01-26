@@ -26,9 +26,10 @@ void menuLoop()
 	unsigned inputLength = getInputLength(inputMessage);
 
 	const size_t N = ((inputLength * CHAR_SIZE_IN_BITS) + MAX_SIZE_MESSAGE_SCHEDULE) / INITIAL_BITS;
-	const size_t ROWS = MAX_SIZE_MESSAGE_SCHEDULE * ((inputLength / MAX_INPUT_CHUNK_LENGTH) + 1);
+	const size_t ROWS = (FRAGMENT_SIZE / 2) * ((inputLength / MAX_INPUT_CHUNK_LENGTH) + 1);
 
-	char** messageBlock = generateMessageBlockRows(ROWS, CHAR_SIZE_IN_BITS);
+	unsigned int* messageBlock = new unsigned int[ROWS] {0};
+	fillMessageBlock(messageBlock, ROWS, inputMessage, inputLength);
 
 	bool exitCommand = false;
 
@@ -85,7 +86,7 @@ void menuLoop()
 		}
 	}
 
-	deleteMessageBlock(messageBlock, ROWS);
+	delete[] messageBlock;
 }
 
 

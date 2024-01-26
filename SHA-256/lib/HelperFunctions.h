@@ -14,22 +14,16 @@
 */
 
 #pragma once
-#include <cstddef> // Needed for compilation with g++
+//#include <cstddef> // Needed for compilation with g++
 
 unsigned getInputLength(const char* str);
 
-void stringCopy(char* dest, const char* source);
-
 unsigned int myStrCmp(const char* first, const char* second);
 
-void mySubstring(char* dest, const char* source, size_t start, size_t length);
+unsigned int powerOfTwo(int n);
 
-void decimalToKSystem(unsigned num, char* to, size_t fragmentLength, unsigned k);
-
-unsigned int kSystemToDecimal(const char* binary, size_t fragmentLength, unsigned k);
+bool checkBit(unsigned int n, unsigned index);
 
 char integerToChar(int n);
 
 int charToInteger(char ch);
-
-bool isDigit(char ch);

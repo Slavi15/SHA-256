@@ -37,126 +37,112 @@ const unsigned int K[MAX_SIZE_MESSAGE_SCHEDULE] = { // K Constants Array
 	0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
 };
 
-char** generateMessageBlockRows(size_t ROWS, size_t COLUMNS)
+void fillMessageBlock(unsigned int* messageBlock, size_t ROWS, const char* input, unsigned inputLength)
 {
-	char** mtx = new char* [ROWS];
+	if (!messageBlock || !input)
+		return;
 
-	for (size_t i = 0; i < ROWS; i++)
+	encodeMessageBlock(messageBlock, input, FRAGMENT_SIZE - 1, CHAR_SIZE_IN_BITS);
+	appendBigEndianInteger(messageBlock, ROWS, FRAGMENT_SIZE, inputLength);
+}
+
+void encodeMessageBlock(unsigned int* messageBlock, const char* input, size_t fragmentLength, int charSizeInBits)
+{
+	if (!messageBlock || !input)
+		return;
+
+	unsigned int arrayIndex = 0, inputIndex = 0;
+
+	while (input[inputIndex] != '\0')
 	{
-		mtx[i] = new char[COLUMNS + 1];
+		unsigned int decimal = charToInteger(input[inputIndex]);
+		extractBinaryRepresentation(messageBlock, arrayIndex, decimal, fragmentLength, charSizeInBits);
 
-		for (size_t j = 0; j < COLUMNS; j++)
-			mtx[i][j] = '0';
+		inputIndex++;
+
+		if (inputIndex % 4 == 0)
+		{
+			fragmentLength = FRAGMENT_SIZE - 1;
+			arrayIndex++;
+		}
 	}
 
-	return mtx;
+	messageBlock[arrayIndex] += powerOfTwo(fragmentLength);
 }
 
-void encodeInputMessage(char** messageBlock, size_t blockLength, char* input, size_t inputLength)
+void extractBinaryRepresentation(unsigned int* messageBlock, unsigned arrayIndex, unsigned int decimal, size_t& fragmentLength, int charSizeInBits)
 {
 	if (!messageBlock)
 		return;
 
-	for (size_t i = 0; i < inputLength; i++)
-		appendCharactersBinary(messageBlock, CHAR_SIZE_IN_BITS, i, input[i]);
-
-	for (size_t i = 0; i < CHAR_SIZE_IN_BITS; i++)
-		i == 0 ? messageBlock[inputLength][i] = '1' : messageBlock[inputLength][i] = '0';
-
-	appendBigEndianInteger(messageBlock, CHAR_SIZE_IN_BITS, blockLength, inputLength);
-}
-
-void appendCharactersBinary(char** messageBlock, size_t charSize, size_t i, char ch)
-{
-	if (!messageBlock)
-		return;
-
-	char binaryArray[CHAR_SIZE_IN_BITS + 1];
-	decimalToKSystem(ch, binaryArray, charSize, 2);
-	stringCopy(messageBlock[i], binaryArray);
-}
-
-void appendBigEndianInteger(char** messageBlock, size_t charSize, size_t blockLength, size_t inputLength)
-{
-	if (!messageBlock)
-		return;
-
-	unsigned num = inputLength * charSize;
-
-	char binaryArray[MAX_SIZE_MESSAGE_SCHEDULE + 1];
-	decimalToKSystem(num, binaryArray, MAX_SIZE_MESSAGE_SCHEDULE, 2);
-
-	for (size_t i = blockLength - charSize, counter = 0; i < blockLength; i++, counter += charSize)
+	for (int i = charSizeInBits - 1; i >= 0; i--)
 	{
-		char part[CHAR_SIZE_IN_BITS + 1];
-		mySubstring(part, binaryArray, counter, charSize);
-		stringCopy(messageBlock[i], part);
+		if (checkBit(decimal, i))
+			messageBlock[arrayIndex] += powerOfTwo(fragmentLength);
+		fragmentLength--;
 	}
 }
 
-void deleteMessageBlock(char** messageBlock, size_t ROWS)
+void appendBigEndianInteger(unsigned int* messageBlock, size_t ROWS, size_t fragmentLength, unsigned int inputLength)
 {
 	if (!messageBlock)
 		return;
 
-	for (size_t i = 0; i < ROWS; i++)
-		delete[] messageBlock[i];
+	unsigned int inputLengthBits = inputLength * CHAR_SIZE_IN_BITS;
+	unsigned int bigEndianBitsPosition = 0;
 
-	delete[] messageBlock;
+	while (inputLengthBits != 0)
+	{
+		if (checkBit(inputLengthBits, 0))
+			messageBlock[ROWS - 1] += powerOfTwo(bigEndianBitsPosition);
+
+		inputLengthBits >>= 1;
+		bigEndianBitsPosition++;
+
+		if (bigEndianBitsPosition == fragmentLength - 1)
+		{
+			bigEndianBitsPosition = 0;
+			ROWS--;
+		}
+	}
 }
 
-void fillMessageSchedule(char** messageBlock, char W[][FRAGMENT_SIZE + 1], size_t blockLength, size_t fragmentLength, unsigned& iteration)
+void fillMessageSchedule(unsigned int* messageBlock, unsigned int* W, size_t blockLength, size_t fragmentLength, unsigned& iteration)
 {
-	if (!messageBlock)
+	if (!messageBlock || !W)
 		return;
 
 	unsigned firstIndex = 0, secondIndex = 9;
 	size_t iterationLengthMessageSchedule = blockLength / 4;
 
-	for (size_t i = 0; i < blockLength; i++)
-		i < iterationLengthMessageSchedule ?
-		getMessageBlockValues(messageBlock, W, fragmentLength, i, iteration) :
-		calculateNextRows(W, i, fragmentLength, firstIndex, secondIndex);
+	for (size_t index = 0; index < blockLength; index++)
+		if (index < iterationLengthMessageSchedule)
+			W[index] = messageBlock[iteration++];
+		else
+			calculateNextRows(W, index, fragmentLength, firstIndex, secondIndex);
 }
 
-void getMessageBlockValues(char** messageBlock, char W[][FRAGMENT_SIZE + 1], size_t fragmentLength, size_t i, unsigned& iteration)
+void calculateNextRows(unsigned int* W, size_t index, size_t fragmentLength, unsigned& firstIndex, unsigned& secondIndex)
 {
-	if (!messageBlock)
+	if (!W)
 		return;
 
-	for (unsigned j = 0, counter = 0; j < fragmentLength; j++, (++counter) %= CHAR_SIZE_IN_BITS)
-	{
-		j != fragmentLength ? W[i][j] = messageBlock[iteration][counter] : W[i][j] = '\0';
-		if (counter == CHAR_SIZE_IN_BITS - 1)
-			iteration++;
-	}
-}
-
-void calculateNextRows(char W[][FRAGMENT_SIZE + 1], size_t i, size_t fragmentLength, unsigned& firstIndex, unsigned& secondIndex)
-{
 	unsigned int summation = SSIGSUMMATION(W, fragmentLength, 7, 18, 3, firstIndex + 1) +
 		SSIGSUMMATION(W, fragmentLength, 17, 19, 10, secondIndex + 5) +
-		kSystemToDecimal(W[firstIndex], fragmentLength, 2) +
-		kSystemToDecimal(W[secondIndex], fragmentLength, 2);
+		W[firstIndex] + W[secondIndex];
 
-	char binaryArray[FRAGMENT_SIZE + 1];
-	decimalToKSystem(summation, binaryArray, fragmentLength, 2);
-
-	for (int j = fragmentLength; j >= 0; j--)
-		j != fragmentLength ? W[i][j] = binaryArray[j] : W[i][j] = '\0';
+	W[index] = summation;
 
 	firstIndex++;
 	secondIndex++;
 }
 
-unsigned int calculateTEMP1(const char W[][FRAGMENT_SIZE + 1], const unsigned int* workingVariables, size_t fragmentLength, size_t index)
+unsigned int calculateTEMP1(unsigned int decimal, const unsigned int* workingVariables, size_t fragmentLength, size_t index)
 {
 	if (!workingVariables)
 		return 0;
 
-	unsigned int w = kSystemToDecimal(W[index], fragmentLength, 2);
-
-	return w + K[index] +
+	return decimal + K[index] +
 		EPSUMMATION(workingVariables[4], fragmentLength, 6, 11, 25) +
 		CHOICE(workingVariables[4], workingVariables[5], workingVariables[6]) + workingVariables[7];
 }
@@ -170,9 +156,12 @@ unsigned int calculateTEMP2(const unsigned int* workingVariables, size_t fragmen
 		MAJORITY(workingVariables[0], workingVariables[1], workingVariables[2]);
 }
 
-unsigned int SSIGSUMMATION(const char W[][FRAGMENT_SIZE + 1], size_t fragmentLength, size_t ROTRFIRST, size_t ROTRSECOND, size_t SHIFTZEROS, unsigned int index)
+unsigned int SSIGSUMMATION(const unsigned int* W, size_t fragmentLength, size_t ROTRFIRST, size_t ROTRSECOND, size_t SHIFTZEROS, unsigned int index)
 {
-	unsigned int decimal = kSystemToDecimal(W[index], fragmentLength, 2);
+	if (!W)
+		return 0;
+
+	unsigned int decimal = W[index];
 
 	return SHIFTZEROS == 3 ?
 		ROTATERIGHT(decimal, ROTRFIRST, fragmentLength) ^ ROTATERIGHT(decimal, ROTRSECOND, fragmentLength) ^ (decimal >> 3) :
@@ -199,12 +188,12 @@ unsigned int ROTATERIGHT(unsigned int decimalNumber, size_t bits, size_t fragmen
 	return ((decimalNumber >> bits) | (decimalNumber << (fragmentLength - bits)));
 }
 
-void updateWorkingVariables(const char W[][FRAGMENT_SIZE + 1], unsigned int* workingVariables, size_t fragmentLength, size_t index)
+void updateWorkingVariables(const unsigned int* W, unsigned int* workingVariables, size_t fragmentLength, size_t index)
 {
-	if (!workingVariables)
+	if (!W || !workingVariables)
 		return;
 
-	unsigned int TEMP1 = calculateTEMP1(W, workingVariables, fragmentLength, index);
+	unsigned int TEMP1 = calculateTEMP1(W[index], workingVariables, fragmentLength, index);
 	unsigned int TEMP2 = calculateTEMP2(workingVariables, fragmentLength);
 
 	unsigned int firstSummation = workingVariables[3] + TEMP1;
@@ -238,12 +227,10 @@ void updateInitialHashValues(unsigned int* workingVariables, size_t workingVaria
 	}
 }
 
-char* getFinalMessage(char** messageBlock, size_t ROWS, char* inputMessage, size_t inputLength, size_t NIterations)
+char* getFinalMessage(unsigned int* messageBlock, size_t ROWS, char* inputMessage, size_t inputLength, size_t NIterations)
 {
 	if (!messageBlock || !inputMessage)
 		return nullptr;
-
-	encodeInputMessage(messageBlock, ROWS, inputMessage, inputLength);
 
 	static char outputMessage[MAX_SIZE_MESSAGE_SCHEDULE + 1];
 	outputMessage[MAX_SIZE_MESSAGE_SCHEDULE] = '\0';
@@ -259,12 +246,12 @@ char* getFinalMessage(char** messageBlock, size_t ROWS, char* inputMessage, size
 	return outputMessage;
 }
 
-void SHA256Iterations(char** messageBlock, unsigned int* workingVariables, unsigned& iteration)
+void SHA256Iterations(unsigned int* messageBlock, unsigned int* workingVariables, unsigned& iteration)
 {
 	if (!messageBlock || !workingVariables)
 		return;
 
-	char W[MAX_SIZE_MESSAGE_SCHEDULE][FRAGMENT_SIZE + 1]; // Message Schedule Array
+	unsigned int W[MAX_SIZE_MESSAGE_SCHEDULE] = { 0 }; // Message Schedule Array
 	fillMessageSchedule(messageBlock, W, MAX_SIZE_MESSAGE_SCHEDULE, FRAGMENT_SIZE, iteration);
 
 	for (size_t index = 0; index < MAX_SIZE_MESSAGE_SCHEDULE; index++)
