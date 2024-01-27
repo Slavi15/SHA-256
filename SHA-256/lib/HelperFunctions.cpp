@@ -30,6 +30,32 @@ unsigned getInputLength(const char* str)
 	return counter;
 }
 
+bool isValidOption(unsigned int option)
+{
+	return option > 0 && option < 4;
+}
+
+unsigned int getOption()
+{
+	unsigned int option = 0, counter = 0;
+
+	do
+	{
+		if (counter > 0)
+		{
+			cin.clear();
+			cin.ignore(128, '\n');
+			cout << "Invalid command! Please, enter (1-3)!" << endl;
+		}
+
+		cout << "Enter command: ";
+
+		counter++;
+	} while (!(cin >> option) && !isValidOption(option)); // Checks whether the input option is of correct datatype
+
+	return option;
+}
+
 unsigned int myStrCmp(const char* first, const char* second)
 {
 	if (!first || !second)

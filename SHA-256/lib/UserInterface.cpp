@@ -26,14 +26,14 @@ void menuLoop()
 	unsigned inputLength = getInputLength(inputMessage);
 
 	const size_t N = ((inputLength * CHAR_SIZE_IN_BITS) + MAX_SIZE_MESSAGE_SCHEDULE) / INITIAL_BITS;
-	const size_t ROWS = (FRAGMENT_SIZE / 2) * ((inputLength / MAX_INPUT_CHUNK_LENGTH) + 1);
+	const size_t ROWS = ((N + 1) * INITIAL_BITS) / FRAGMENT_SIZE;
 
 	unsigned int* messageBlock = new unsigned int[ROWS] {0};
 	fillMessageBlock(messageBlock, ROWS, inputMessage, inputLength);
 
 	bool exitCommand = false;
 
-	while (!exitCommand)
+	do
 	{
 		refreshScreen();
 		cout << "Welcome to SHA-256!" << endl;
@@ -41,9 +41,7 @@ void menuLoop()
 		cout << "2. SHA-256 Integrity Check" << endl;
 		cout << "3. Exit" << endl;
 
-		unsigned int menuOption = 0;
-		cout << "Enter command: ";
-		cin >> menuOption;
+		unsigned int menuOption = getOption();
 
 		switch (menuOption)
 		{
@@ -77,14 +75,8 @@ void menuLoop()
 			exitCommand = true;
 		}
 		break;
-		default:
-		{
-			refreshScreen();
-			cout << "Invalid command! Please, enter (1-3)!" << endl;
 		}
-		break;
-		}
-	}
+	} while (!exitCommand);
 
 	delete[] messageBlock;
 }

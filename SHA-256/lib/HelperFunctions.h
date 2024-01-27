@@ -14,9 +14,16 @@
 */
 
 #pragma once
+#include <iostream>
 //#include <cstddef> // Needed for compilation with g++
 
+using namespace std;
+
 unsigned getInputLength(const char* str);
+
+unsigned int getOption();
+
+bool isValidOption(unsigned int option);
 
 unsigned int myStrCmp(const char* first, const char* second);
 
