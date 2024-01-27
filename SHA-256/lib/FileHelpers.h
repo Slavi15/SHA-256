@@ -18,6 +18,6 @@
 
 using namespace std;
 
-int fReadString(const char* fileName, char* inputMessage, size_t size, size_t line);
+int fReadString(const char* fileName, char* inputMessage, size_t size);
 
 int fWriteString(const char* fileName, const char* outputMessage, size_t outputLength);

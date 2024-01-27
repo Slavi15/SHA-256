@@ -21,7 +21,7 @@
 void menuLoop()
 {
 	char inputMessage[SAFE_MAX_SIZE];
-	fReadString(INPUT_FILE_NAME, inputMessage, SAFE_MAX_SIZE, 1);
+	fReadString(INPUT_FILE_NAME, inputMessage, SAFE_MAX_SIZE);
 
 	unsigned inputLength = getInputLength(inputMessage);
 

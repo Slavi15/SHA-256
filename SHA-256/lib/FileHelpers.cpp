@@ -15,7 +15,7 @@
 
 #include "FileHelpers.h"
 
-int fReadString(const char* fileName, char* inputMessage, size_t size, size_t line)
+int fReadString(const char* fileName, char* inputMessage, size_t size)
 {
 	if (!fileName || !inputMessage)
 		return 0;
@@ -25,11 +25,12 @@ int fReadString(const char* fileName, char* inputMessage, size_t size, size_t li
 	if (!myFile.is_open())
 		return 1;
 
-	size_t lineNumber = 1;
-	while ((lineNumber++ <= line) && (myFile.getline(inputMessage, size)));
+	unsigned int index = 0;
+	if (myFile.is_open())
+		while (myFile.good())
+			myFile.get(inputMessage[index++]);
 
-	if (myFile.eof() && (line + 2 != lineNumber))
-		return 2;
+	inputMessage[--index] = '\0';
 
 	myFile.close();
 	return 0;
