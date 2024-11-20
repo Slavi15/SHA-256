@@ -15,19 +15,25 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="lib\FileHelpers.cpp">
+    <ClCompile Include="build\FileHelpers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="lib\HelperFunctions.cpp">
+    <ClCompile Include="build\HelperFunctions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="lib\UserInterface.cpp">
+    <ClCompile Include="build\UserInterface.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="lib\Hash.cpp">
+    <ClCompile Include="build\Hash.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SHA256.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="build\GlobalVariables.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="build\MathCalculations.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -36,16 +42,25 @@
     <Text Include="sha256_output.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="lib\FileHelpers.h">
+    <ClInclude Include="build\FileHelpers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="lib\HelperFunctions.h">
+    <ClInclude Include="build\HelperFunctions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="lib\UserInterface.h">
+    <ClInclude Include="build\UserInterface.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="lib\Hash.h">
+    <ClInclude Include="build\Hash.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="build\GlobalVariables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="build\Constants.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="build\MathCalculations.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

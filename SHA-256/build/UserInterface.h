@@ -9,15 +9,16 @@
 * @idnumber 6MI0600339
 * @compiler VC
 *
-* Header: Definitions of File Helper Functions
+* Header: Main Menu
 *
 */
 
 #pragma once
-#include <fstream>
 
-using namespace std;
+#include <iostream>
 
-int fReadString(const char* fileName, char* inputMessage, size_t size);
+void SHA256();
 
-int fWriteString(const char* fileName, const char* outputMessage, size_t outputLength);
+void integrityCheck(uint32_t* messageBlock, uint32_t rows, char* inputMessage, uint32_t inputLength, uint32_t N);
+
+void refreshScreen();

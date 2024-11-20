@@ -127,10 +127,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="lib\FileHelpers.cpp" />
-    <ClCompile Include="lib\Hash.cpp" />
-    <ClCompile Include="lib\HelperFunctions.cpp" />
-    <ClCompile Include="lib\UserInterface.cpp" />
+    <ClCompile Include="build\FileHelpers.cpp" />
+    <ClCompile Include="build\Hash.cpp" />
+    <ClCompile Include="build\HelperFunctions.cpp" />
+    <ClCompile Include="build\UserInterface.cpp" />
+    <ClCompile Include="build\GlobalVariables.cpp" />
+    <ClCompile Include="build\MathCalculations.cpp" />
     <ClCompile Include="SHA256.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -138,10 +140,13 @@
     <Text Include="sha256_output.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="lib\FileHelpers.h" />
-    <ClInclude Include="lib\Hash.h" />
-    <ClInclude Include="lib\HelperFunctions.h" />
-    <ClInclude Include="lib\UserInterface.h" />
+    <ClInclude Include="build\FileHelpers.h" />
+    <ClInclude Include="build\Hash.h" />
+    <ClInclude Include="build\HelperFunctions.h" />
+    <ClInclude Include="build\UserInterface.h" />
+    <ClInclude Include="build\GlobalVariables.h" />
+    <ClInclude Include="build\Constants.h" />
+    <ClInclude Include="build\MathCalculations.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -11,10 +11,11 @@
 *
 */
 
-#include "lib/UserInterface.h"
+#include "build/UserInterface.h"
 
 int main()
 {
-	menuLoop();
+	SHA256();
+
 	return 0;
 }
